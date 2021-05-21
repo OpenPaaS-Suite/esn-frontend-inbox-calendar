@@ -33,6 +33,7 @@ function calInboxInvitationMessageBlueBarController(
   self.onPartstatChangeError = onPartstatChangeError;
   self.isActionable = isActionable;
   self.translationData = {};
+  self.isOutdated = false;
   watchDynamicTranslatedValue(self.translationData, 'recurrenceType', function() {
     return self.event.getRecurrenceType();
   });
@@ -155,9 +156,10 @@ function calInboxInvitationMessageBlueBarController(
     return $q.reject(new InvalidMeetingError('Event does not involve current user.'));
   }
 
+  // This function throw an error when the event is updated
   function assertInvitationSequenceIsNotOutdated(event) {
     if (+self.meeting.sequence < +event.sequence) {
-      return $q.reject(new InvalidMeetingError('Sequence is outdated (event.sequence = ' + event.sequence + ').'));
+      self.isOutdated = true;
     }
 
     return event;
