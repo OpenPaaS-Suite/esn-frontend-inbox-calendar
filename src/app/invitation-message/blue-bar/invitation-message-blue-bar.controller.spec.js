@@ -240,7 +240,7 @@ describe('The calInboxInvitationMessageBlueBarController', function() {
       expect(ctrl.meeting.loaded).to.equal(true);
     });
 
-    it('should report an invalid meeting if the sequence is outdated', function() {
+    it('should not report an invalid meeting if the sequence is outdated , must show an outdated message', function() {
       var ctrl = initCtrl('REQUEST', '1234', '0'); // Event sequence is 2
 
       session.user.emails = ['admin@linagora.com'];
@@ -248,7 +248,8 @@ describe('The calInboxInvitationMessageBlueBarController', function() {
       ctrl.$onInit();
       $rootScope.$digest();
 
-      expect(ctrl.meeting.invalid).to.equal(true);
+      expect(ctrl.meeting.invalid).to.be.false;
+      expect(ctrl.isOutdated).to.be.true;
     });
 
     it('should expose the event', function() {

@@ -33,6 +33,8 @@ function calInboxInvitationMessageBlueBarController(
   self.onPartstatChangeError = onPartstatChangeError;
   self.isActionable = isActionable;
   self.translationData = {};
+  self.isOutdated = false;
+  self.outdatedEventMessage = 'Event outdated';
   watchDynamicTranslatedValue(self.translationData, 'recurrenceType', function() {
     return self.event.getRecurrenceType();
   });
@@ -96,7 +98,11 @@ function calInboxInvitationMessageBlueBarController(
       self.meeting.error = err.message || err;
     }
 
-    $log.error(err);
+    if (err.message === self.outdatedEventMessage) {
+      self.meeting.invalid = false;
+    } else {
+      $log.error(err);
+    }
   }
 
   function handleNonExistentEvent(err) {
@@ -157,7 +163,9 @@ function calInboxInvitationMessageBlueBarController(
 
   function assertInvitationSequenceIsNotOutdated(event) {
     if (+self.meeting.sequence < +event.sequence) {
-      return $q.reject(new InvalidMeetingError('Sequence is outdated (event.sequence = ' + event.sequence + ').'));
+      self.isOutdated = true;
+
+      return $q.reject(new InvalidMeetingError(self.outdatedEventMessage));
     }
 
     return event;
